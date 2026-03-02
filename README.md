@@ -17,6 +17,18 @@ npm start
 
 Default server URL: `http://localhost:3000`.
 
+## GitHub Pages
+
+Static browser version is available via GitHub Pages:
+
+- `https://doclassif.github.io/solar-times-api/`
+
+Example with query params:
+
+- `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json`
+
+Note: GitHub Pages is static hosting, so this is a client-side calculator (not a Node.js server endpoint).
+
 ## Use as npm package
 
 Install:
