@@ -2,8 +2,11 @@
 
 [![npm version](https://img.shields.io/npm/v/solar-times-api.svg)](https://www.npmjs.com/package/solar-times-api)
 [![npm downloads](https://img.shields.io/npm/dm/solar-times-api.svg)](https://www.npmjs.com/package/solar-times-api)
+[![demo](https://img.shields.io/badge/demo-github_pages-2ea44f.svg)](https://doclassif.github.io/solar-times-api/)
 
 Reusable Node.js API and npm package for sunrise and sunset calculations based on the NOAA sunrise/sunset algorithm.
+
+Demo: https://doclassif.github.io/solar-times-api/
 
 - Zenith: `90.833` (official zenith, includes atmospheric refraction and solar radius)
 - Response formats: `json`, `xml`, `csv`, `html`
