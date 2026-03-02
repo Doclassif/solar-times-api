@@ -3,7 +3,7 @@
 const http = require('http');
 const { URL } = require('url');
 const { calculateRange, OFFICIAL_ZENITH } = require('./solarTimes');
-const { toJson, toXml, toCsv } = require('./formatters');
+const { toJson, toXml, toCsv, toHtml } = require('./formatters');
 
 const PORT = process.env.PORT || 3000;
 
@@ -83,6 +83,10 @@ function badRequest(res, message, format) {
     send(res, 400, `error\n"${message.replace(/"/g, '""')}"\n`, 'text/csv; charset=utf-8');
     return;
   }
+  if (format === 'html') {
+    send(res, 400, `<h1>Bad Request</h1><p>${message}</p>`, 'text/html; charset=utf-8');
+    return;
+  }
   send(res, 400, JSON.stringify(payload, null, 2));
 }
 
@@ -105,8 +109,8 @@ const server = http.createServer((req, res) => {
   const utcOffsetRaw = search.get('utcOffset') || search.get('utc');
   const format = (search.get('format') || 'json').toLowerCase();
 
-  if (!['json', 'xml', 'csv'].includes(format)) {
-    return badRequest(res, 'Unsupported format. Use json, xml, or csv.', 'json');
+  if (!['json', 'xml', 'csv', 'html'].includes(format)) {
+    return badRequest(res, 'Unsupported format. Use json, xml, csv, or html.', 'json');
   }
 
   if (!fromRaw || !toRaw || !latRaw || !lonRaw) {
@@ -165,6 +169,9 @@ const server = http.createServer((req, res) => {
   }
   if (format === 'csv') {
     return send(res, 200, toCsv(payload), 'text/csv; charset=utf-8');
+  }
+  if (format === 'html') {
+    return send(res, 200, toHtml(payload), 'text/html; charset=utf-8');
   }
 
   return send(res, 200, toJson(payload));

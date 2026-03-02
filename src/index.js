@@ -6,7 +6,8 @@ const {
 const {
   toJson,
   toXml,
-  toCsv
+  toCsv,
+  toHtml
 } = require('./formatters');
 
 module.exports = {
@@ -15,5 +16,6 @@ module.exports = {
   calculateRange,
   toJson,
   toXml,
-  toCsv
+  toCsv,
+  toHtml
 };

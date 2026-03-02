@@ -3,7 +3,7 @@
 Reusable Node.js API and npm package for sunrise and sunset calculations based on the NOAA sunrise/sunset algorithm.
 
 - Zenith: `90.833` (official zenith, includes atmospheric refraction and solar radius)
-- Response formats: `json`, `xml`, `csv`
+- Response formats: `json`, `xml`, `csv`, `html`
 - Returned format: `ISO-8601` with configurable UTC offset (`Z` by default)
 
 ## Run
@@ -59,6 +59,7 @@ Available exports:
 - `toJson(payload)`
 - `toXml(payload)`
 - `toCsv(payload)`
+- `toHtml(payload)`
 
 Run as CLI server after global install:
 
@@ -78,7 +79,7 @@ solar-times-api
 - `lat` or `latitude`: latitude (`-90..90`)
 - `lon` or `longitude`: longitude (`-180..180`)
 - `utcOffset` or `utc`: output offset (`Z`, `UTC`, `1`, `-3`, `03:00`, `-05:30`; default `Z`)
-- `format`: `json` (default), `xml`, or `csv`
+- `format`: `json` (default), `xml`, `csv`, or `html`
 
 ## Examples
 
@@ -104,6 +105,12 @@ curl "http://localhost:3000/solar-times?c=2026-03-01&po=2026-03-03&lat=55.7558&l
 
 ```bash
 curl "http://localhost:3000/solar-times?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&format=csv"
+```
+
+### HTML
+
+```bash
+curl "http://localhost:3000/solar-times?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&format=html"
 ```
 
 ### Healthcheck
