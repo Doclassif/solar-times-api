@@ -1,6 +1,6 @@
 {
   "name": "solar-times-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reusable Node.js API and package for sunrise and sunset calculation using NOAA algorithm",
   "main": "src/index.js",
   "type": "commonjs",
