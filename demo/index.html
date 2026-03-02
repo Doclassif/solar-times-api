@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Solar Times API (GitHub Pages)</title>
+    <title>Solar Times UI</title>
     <style id="appStyles">
       :root {
         --bg: #f7f8fa;
@@ -70,28 +70,13 @@
       @media (max-width: 768px) {
         .grid { grid-template-columns: 1fr; }
       }
-      #rawOutput {
-        margin: 0;
-        padding: 12px;
-        white-space: pre-wrap;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      }
-      #rawHtml table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      #rawHtml th, #rawHtml td {
-        border: 1px solid var(--line);
-        padding: 8px;
-        text-align: left;
-      }
     </style>
   </head>
   <body>
-    <div class="wrap" id="previewWrap">
+    <div class="wrap">
       <div class="card">
-        <h1>Solar Times API (GitHub Pages)</h1>
-        <p>Preview mode. Default mode returns API-like raw output.</p>
+        <h1>Solar Times UI</h1>
+        <p>Preview page. Use local NOAA calculation or an external API via API Base URL.</p>
         <div class="grid">
           <div><label>From</label><input id="from" type="date" /></div>
           <div><label>To</label><input id="to" type="date" /></div>
@@ -107,8 +92,8 @@
       </div>
       <div class="card" id="result"></div>
     </div>
-    <pre id="rawOutput" style="display: none;"></pre>
-    <div id="rawHtml" style="display: none;"></div>
+    <pre id="rawOutput" style="display:none; margin:0;"></pre>
+    <div id="rawHtml" style="display:none;"></div>
 
     <script>
       const OFFICIAL_ZENITH = 90.833;
@@ -238,31 +223,7 @@
         return rows.join('\n');
       }
 
-      function getParams() {
-        const q = new URLSearchParams(window.location.search);
-        return {
-          from: q.get('from') || q.get('c') || '',
-          to: q.get('to') || q.get('po') || '',
-          lat: q.get('lat') || q.get('latitude') || '',
-          lon: q.get('lon') || q.get('longitude') || '',
-          utcOffset: q.get('utcOffset') || q.get('utc') || 'Z',
-          apiBase: q.get('apiBase') || '',
-          preview: q.get('preview') === '1',
-          format: (q.get('format') || 'json').toLowerCase()
-        };
-      }
-
-      function applyParamsToForm(p) {
-        document.getElementById('from').value = p.from;
-        document.getElementById('to').value = p.to;
-        document.getElementById('lat').value = p.lat;
-        document.getElementById('lon').value = p.lon;
-        document.getElementById('utcOffset').value = p.utcOffset;
-        document.getElementById('apiBase').value = p.apiBase;
-        document.getElementById('format').value = ['json', 'xml', 'csv', 'html'].includes(p.format) ? p.format : 'json';
-      }
-
-      function renderPreview(payload, format) {
+      function render(payload, format) {
         const resultEl = document.getElementById('result');
         if (format === 'html') {
           const rows = payload.results.map((r) => `<tr><td>${escXml(r.date)}</td><td>${escXml(r.sunrise || '')}</td><td>${escXml(r.sunset || '')}</td></tr>`).join('');
@@ -280,7 +241,7 @@
         resultEl.innerHTML = `<pre>${escXml(JSON.stringify(payload, null, 2))}</pre>`;
       }
 
-      function renderRaw(payload, format) {
+      function renderPseudoApi(payload, format) {
         const rawOutput = document.getElementById('rawOutput');
         const rawHtml = document.getElementById('rawHtml');
         rawOutput.style.display = 'none';
@@ -303,12 +264,36 @@
         rawOutput.style.display = 'block';
       }
 
-      function renderRawText(text) {
+      function renderPseudoApiText(text) {
         const rawOutput = document.getElementById('rawOutput');
         const rawHtml = document.getElementById('rawHtml');
         rawHtml.style.display = 'none';
         rawOutput.textContent = text;
         rawOutput.style.display = 'block';
+      }
+
+      function getParams() {
+        const q = new URLSearchParams(window.location.search);
+        return {
+          from: q.get('from') || q.get('c') || '',
+          to: q.get('to') || q.get('po') || '',
+          lat: q.get('lat') || q.get('latitude') || '',
+          lon: q.get('lon') || q.get('longitude') || '',
+          utcOffset: q.get('utcOffset') || q.get('utc') || 'Z',
+          apiBase: q.get('apiBase') || '',
+          pseudoApi: q.get('api') === '1' || (q.get('mode') || '').toLowerCase() === 'api',
+          format: (q.get('format') || 'json').toLowerCase()
+        };
+      }
+
+      function applyParamsToForm(p) {
+        document.getElementById('from').value = p.from;
+        document.getElementById('to').value = p.to;
+        document.getElementById('lat').value = p.lat;
+        document.getElementById('lon').value = p.lon;
+        document.getElementById('utcOffset').value = p.utcOffset;
+        document.getElementById('apiBase').value = p.apiBase;
+        document.getElementById('format').value = ['json', 'xml', 'csv', 'html'].includes(p.format) ? p.format : 'json';
       }
 
       async function fetchFromApi(apiBase, params) {
@@ -332,8 +317,6 @@
         if (params.format === 'json' && contentType.includes('application/json')) {
           return JSON.parse(text);
         }
-        if (params.format === 'xml') return text;
-        if (params.format === 'csv') return text;
         return text;
       }
 
@@ -345,6 +328,7 @@
         const utcOffsetRaw = document.getElementById('utcOffset').value;
         const apiBaseRaw = document.getElementById('apiBase').value.trim();
         const format = document.getElementById('format').value;
+        const pseudoApiMode = params.pseudoApi;
 
         const from = parseDate(fromRaw);
         const to = parseDate(toRaw);
@@ -353,18 +337,18 @@
         const offset = parseUtcOffset(utcOffsetRaw);
 
         if (!from || !to || !Number.isFinite(lat) || !Number.isFinite(lon) || !offset) {
-          if (previewMode) {
-            document.getElementById('result').innerHTML = '<pre>Invalid parameters.</pre>';
+          if (pseudoApiMode) {
+            renderPseudoApiText('Invalid parameters.');
           } else {
-            renderRawText('Invalid parameters.');
+            document.getElementById('result').innerHTML = '<pre>Invalid parameters.</pre>';
           }
           return;
         }
         if (from > to || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-          if (previewMode) {
-            document.getElementById('result').innerHTML = '<pre>Validation failed.</pre>';
+          if (pseudoApiMode) {
+            renderPseudoApiText('Validation failed.');
           } else {
-            renderRawText('Validation failed.');
+            document.getElementById('result').innerHTML = '<pre>Validation failed.</pre>';
           }
           return;
         }
@@ -377,7 +361,7 @@
           utcOffset: utcOffsetRaw,
           format,
           apiBase: apiBaseRaw,
-          preview: previewMode ? '1' : '0'
+          api: pseudoApiMode ? '1' : '0'
         });
         history.replaceState(null, '', `${location.pathname}?${next.toString()}`);
 
@@ -391,34 +375,35 @@
               utcOffset: utcOffsetRaw,
               format
             });
+
             if (format === 'json') {
-              if (previewMode) {
-                renderPreview(apiResult, 'json');
+              if (pseudoApiMode) {
+                renderPseudoApi(apiResult, 'json');
               } else {
-                renderRaw(apiResult, 'json');
+                render(apiResult, 'json');
               }
             } else if (format === 'html') {
-              if (previewMode) {
-                document.getElementById('result').innerHTML = apiResult;
-              } else {
+              if (pseudoApiMode) {
                 const rawOutput = document.getElementById('rawOutput');
                 const rawHtml = document.getElementById('rawHtml');
-                rawOutput.classList.add('hidden');
+                rawOutput.style.display = 'none';
                 rawHtml.innerHTML = apiResult;
-                rawHtml.classList.remove('hidden');
+                rawHtml.style.display = 'block';
+              } else {
+                document.getElementById('result').innerHTML = apiResult;
               }
             } else {
-              if (previewMode) {
-                document.getElementById('result').innerHTML = `<pre>${escXml(apiResult)}</pre>`;
+              if (pseudoApiMode) {
+                renderPseudoApiText(apiResult);
               } else {
-                renderRawText(apiResult);
+                document.getElementById('result').innerHTML = `<pre>${escXml(apiResult)}</pre>`;
               }
             }
           } catch (error) {
-            if (previewMode) {
-              document.getElementById('result').innerHTML = `<pre>${escXml(String(error.message || error))}</pre>`;
+            if (pseudoApiMode) {
+              renderPseudoApiText(String(error.message || error));
             } else {
-              renderRawText(String(error.message || error));
+              document.getElementById('result').innerHTML = `<pre>${escXml(String(error.message || error))}</pre>`;
             }
           }
           return;
@@ -429,10 +414,10 @@
           meta: { from: fromRaw, to: toRaw, latitude: lat, longitude: lon, utcOffset: offset.label, zenith: OFFICIAL_ZENITH },
           results
         };
-        if (previewMode) {
-          renderPreview(payload, format);
+        if (pseudoApiMode) {
+          renderPseudoApi(payload, format);
         } else {
-          renderRaw(payload, format);
+          render(payload, format);
         }
       }
 
@@ -447,19 +432,11 @@
       };
 
       const params = { ...defaults, ...getParams() };
-      const previewMode = params.preview;
-      const previewWrap = document.getElementById('previewWrap');
-      const rawOutput = document.getElementById('rawOutput');
-      const rawHtml = document.getElementById('rawHtml');
-      const appStyles = document.getElementById('appStyles');
-
-      if (!previewMode && appStyles) {
-        appStyles.remove();
+      if (params.pseudoApi) {
+        const appStyles = document.getElementById('appStyles');
+        if (appStyles) appStyles.remove();
+        document.querySelector('.wrap').style.display = 'none';
       }
-
-      previewWrap.style.display = previewMode ? 'block' : 'none';
-      rawOutput.style.display = previewMode ? 'none' : 'block';
-      rawHtml.style.display = 'none';
       applyParamsToForm(params);
       calculateAndRender();
       document.getElementById('run').addEventListener('click', calculateAndRender);

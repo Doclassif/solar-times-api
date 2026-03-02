@@ -3,12 +3,10 @@
 [![npm version](https://img.shields.io/npm/v/solar-times-api.svg)](https://www.npmjs.com/package/solar-times-api)
 [![npm downloads](https://img.shields.io/npm/dm/solar-times-api.svg)](https://www.npmjs.com/package/solar-times-api)
 [![live page](https://img.shields.io/badge/live-github_pages-2ea44f.svg)](https://doclassif.github.io/solar-times-api/)
-[![demo](https://img.shields.io/badge/demo-preview-blue.svg)](https://doclassif.github.io/solar-times-api/?preview=1)
 
 Reusable Node.js API and npm package for sunrise and sunset calculations based on the NOAA sunrise/sunset algorithm.
 
 Live page: https://doclassif.github.io/solar-times-api/
-Demo (preview mode): https://doclassif.github.io/solar-times-api/?preview=1
 
 - Zenith: `90.833` (official zenith, includes atmospheric refraction and solar radius)
 - Response formats: `json`, `xml`, `csv`, `html`
@@ -28,15 +26,18 @@ GitHub Pages URL:
 
 - `https://doclassif.github.io/solar-times-api/`
 
-By default, this URL returns API-like raw output based on query params.
-
-Use preview mode (`preview=1`) to open the interactive page.
+This URL is the UI page and can work in two modes:
 
 Examples:
 
 - `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json`
-- `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json&preview=1`
 - `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json&apiBase=https://your-api.example.com`
+- `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json&api=1`
+
+Pseudo API mode:
+
+- add `api=1` (or `mode=api`) to return raw response without UI
+- supports `format=json|xml|csv|html`
 
 Note: GitHub Pages is static hosting, so Node.js backend endpoints are not hosted there.  
 If you have an external API, pass `apiBase=https://your-api.example.com` in the URL.
