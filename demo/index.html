@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Solar Times API (GitHub Pages)</title>
-    <style>
+    <style id="appStyles">
       :root {
         --bg: #f7f8fa;
         --fg: #121316;
@@ -70,7 +70,6 @@
       @media (max-width: 768px) {
         .grid { grid-template-columns: 1fr; }
       }
-      .hidden { display: none; }
       #rawOutput {
         margin: 0;
         padding: 12px;
@@ -108,8 +107,8 @@
       </div>
       <div class="card" id="result"></div>
     </div>
-    <pre id="rawOutput" class="hidden"></pre>
-    <div id="rawHtml" class="hidden"></div>
+    <pre id="rawOutput" style="display: none;"></pre>
+    <div id="rawHtml" style="display: none;"></div>
 
     <script>
       const OFFICIAL_ZENITH = 90.833;
@@ -284,13 +283,13 @@
       function renderRaw(payload, format) {
         const rawOutput = document.getElementById('rawOutput');
         const rawHtml = document.getElementById('rawHtml');
-        rawOutput.classList.add('hidden');
-        rawHtml.classList.add('hidden');
+        rawOutput.style.display = 'none';
+        rawHtml.style.display = 'none';
 
         if (format === 'html') {
           const rows = payload.results.map((r) => `<tr><td>${escXml(r.date)}</td><td>${escXml(r.sunrise || '')}</td><td>${escXml(r.sunset || '')}</td></tr>`).join('');
           rawHtml.innerHTML = `<table><thead><tr><th>Date</th><th>Sunrise</th><th>Sunset</th></tr></thead><tbody>${rows}</tbody></table>`;
-          rawHtml.classList.remove('hidden');
+          rawHtml.style.display = 'block';
           return;
         }
 
@@ -301,15 +300,15 @@
         } else {
           rawOutput.textContent = JSON.stringify(payload, null, 2);
         }
-        rawOutput.classList.remove('hidden');
+        rawOutput.style.display = 'block';
       }
 
       function renderRawText(text) {
         const rawOutput = document.getElementById('rawOutput');
         const rawHtml = document.getElementById('rawHtml');
-        rawHtml.classList.add('hidden');
+        rawHtml.style.display = 'none';
         rawOutput.textContent = text;
-        rawOutput.classList.remove('hidden');
+        rawOutput.style.display = 'block';
       }
 
       async function fetchFromApi(apiBase, params) {
@@ -449,9 +448,18 @@
 
       const params = { ...defaults, ...getParams() };
       const previewMode = params.preview;
-      document.getElementById('previewWrap').classList.toggle('hidden', !previewMode);
-      document.getElementById('rawOutput').classList.toggle('hidden', previewMode);
-      document.getElementById('rawHtml').classList.toggle('hidden', true);
+      const previewWrap = document.getElementById('previewWrap');
+      const rawOutput = document.getElementById('rawOutput');
+      const rawHtml = document.getElementById('rawHtml');
+      const appStyles = document.getElementById('appStyles');
+
+      if (!previewMode && appStyles) {
+        appStyles.remove();
+      }
+
+      previewWrap.style.display = previewMode ? 'block' : 'none';
+      rawOutput.style.display = previewMode ? 'none' : 'block';
+      rawHtml.style.display = 'none';
       applyParamsToForm(params);
       calculateAndRender();
       document.getElementById('run').addEventListener('click', calculateAndRender);
