@@ -2,11 +2,13 @@
 
 [![npm version](https://img.shields.io/npm/v/solar-times-api.svg)](https://www.npmjs.com/package/solar-times-api)
 [![npm downloads](https://img.shields.io/npm/dm/solar-times-api.svg)](https://www.npmjs.com/package/solar-times-api)
-[![demo](https://img.shields.io/badge/demo-github_pages-2ea44f.svg)](https://doclassif.github.io/solar-times-api/)
+[![live page](https://img.shields.io/badge/live-github_pages-2ea44f.svg)](https://doclassif.github.io/solar-times-api/)
+[![demo](https://img.shields.io/badge/demo-preview-blue.svg)](https://doclassif.github.io/solar-times-api/?preview=1)
 
 Reusable Node.js API and npm package for sunrise and sunset calculations based on the NOAA sunrise/sunset algorithm.
 
-Demo: https://doclassif.github.io/solar-times-api/
+Live page: https://doclassif.github.io/solar-times-api/
+Demo (preview mode): https://doclassif.github.io/solar-times-api/?preview=1
 
 - Zenith: `90.833` (official zenith, includes atmospheric refraction and solar radius)
 - Response formats: `json`, `xml`, `csv`, `html`
@@ -22,15 +24,22 @@ Default server URL: `http://localhost:3000`.
 
 ## GitHub Pages
 
-Static browser version is available via GitHub Pages:
+GitHub Pages URL:
 
 - `https://doclassif.github.io/solar-times-api/`
 
-Example with query params:
+By default, this URL returns API-like raw output based on query params.
+
+Use preview mode (`preview=1`) to open the interactive page.
+
+Examples:
 
 - `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json`
+- `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json&preview=1`
+- `https://doclassif.github.io/solar-times-api/?from=2026-03-01&to=2026-03-03&lat=55.7558&lon=37.6173&utcOffset=3&format=json&apiBase=https://your-api.example.com`
 
-Note: GitHub Pages is static hosting, so this is a client-side calculator (not a Node.js server endpoint).
+Note: GitHub Pages is static hosting, so Node.js backend endpoints are not hosted there.  
+If you have an external API, pass `apiBase=https://your-api.example.com` in the URL.
 
 ## Use as npm package
 
@@ -171,7 +180,7 @@ CI behavior:
 
 - runs on `push` and `pull_request`;
 - tests Node.js `18`, `20`, `22`;
-- runs `npm install`;
+- runs `npm ci`;
 - runs `npm run check` (syntax checks).
 
 Local check:

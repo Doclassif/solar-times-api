@@ -7,6 +7,12 @@ const { toJson, toXml, toCsv, toHtml } = require('./formatters');
 
 const PORT = process.env.PORT || 3000;
 
+function setCorsHeaders(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
 function parseUtcOffset(value) {
   if (!value) {
     return { minutes: 0, label: 'Z' };
@@ -64,6 +70,7 @@ function parseDate(value) {
 }
 
 function send(res, statusCode, body, contentType = 'application/json; charset=utf-8') {
+  setCorsHeaders(res);
   res.writeHead(statusCode, { 'Content-Type': contentType });
   res.end(body);
 }
@@ -91,6 +98,13 @@ function badRequest(res, message, format) {
 }
 
 const server = http.createServer((req, res) => {
+  if (req.method === 'OPTIONS') {
+    setCorsHeaders(res);
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === 'GET' && parsedUrl.pathname === '/health') {
